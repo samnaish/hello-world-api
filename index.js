@@ -19,12 +19,22 @@ app.get('/people', (req, res) => {
 });
 
 app.get('/people/:id', (req, res) => {
-    res.json({
-        data: myDataSource.find((item) => {
-            return item.id === req.params.id;
-        })
-    })
-})
+
+    const user = myDataSource.find((item) => {
+        return item.id === req.params.id;
+    });
+
+    if (user) {
+        return res.json({
+            data: user
+        });
+    } else {
+        return res.status(404).json({
+            error: 'user not found'
+        });
+    };
+
+});
 
 app.post('/people', (req, res) => {
     if (req.body.name && req.body.job) {
@@ -43,17 +53,27 @@ app.post('/people', (req, res) => {
 })
 
 app.put('/people/:id', (req, res) => {
-    myDataSource = myDataSource.map((item) => {
-        if (item.id === req.params.id) {
-            return Object.assign(item, req.body)
-        } else {
-            return item;
-        }
-    })
-    res.json({
-        data: myDataSource
+    
+    const userIndex = myDataSource.findIndex((item) => {
+        return item.id === req.params.id;
     });
-})
+    
+    if (userIndex !== -1) {
+        // User found
+        myDataSource[userIndex] = Object.assign(myDataSource[userIndex], req.body);
+        res.json({
+            data: myDataSource[userIndex]
+        });
+
+    } else {
+        // User not found
+        return res.status(404).json({
+            error: 'User has not been found'
+        });
+    };
+
+
+});
 
 app.delete('/people/:id', (req, res) => {
     myDataSource = myDataSource.filter((item) => {
